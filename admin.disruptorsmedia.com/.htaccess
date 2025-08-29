@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Increase max post size and upload size
+php_value post_max_size 50M
+php_value upload_max_filesize 50M
+
+# Limit request body to 50MB
+LimitRequestBody 52428800

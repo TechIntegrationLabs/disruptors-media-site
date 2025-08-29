@@ -31,3 +31,6 @@ public/uploads/
 public/galleries/
 public/podcast_videos/
 public/portfolios/
+
+# Local Netlify folder
+.netlify
