@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Build outputs
+build/
+dist/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Laravel specific
+storage/logs/
+storage/framework/
+bootstrap/cache/
+public/hot
+
+# Uploaded files
+public/uploads/
+public/galleries/
+public/podcast_videos/
+public/portfolios/
