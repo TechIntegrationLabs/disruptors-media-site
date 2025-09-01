@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Blog.css';
+import { fetchBlogPostsFromSheet, fetchBlogPostsFromCSV } from './googleSheetsService';
 
 const apiUrl = process.env.REACT_APP_BASE_URL;
 
@@ -17,13 +18,32 @@ const Blog = () => {
 
   const fetchPosts = async () => {
     try {
+      // First try to fetch from Google Sheets API
+      let sheetsPosts = await fetchBlogPostsFromSheet();
+      
+      if (sheetsPosts && sheetsPosts.length > 0) {
+        setPosts(sheetsPosts);
+        setLoading(false);
+        return;
+      }
+      
+      // If API fails, try CSV method
+      sheetsPosts = await fetchBlogPostsFromCSV();
+      
+      if (sheetsPosts && sheetsPosts.length > 0) {
+        setPosts(sheetsPosts);
+        setLoading(false);
+        return;
+      }
+      
+      // Fallback to Laravel API
       const response = await fetch(`${apiUrl}/api/blog-posts`);
       const data = await response.json();
       setPosts(data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching posts:', error);
-      // Use placeholder data if API fails
+      // Use placeholder data if all methods fail
       setPosts(placeholderPosts);
       setLoading(false);
     }
@@ -45,69 +65,22 @@ const Blog = () => {
     { id: 'technology', name: 'Technology' },
     { id: 'marketing', name: 'Marketing' },
     { id: 'design', name: 'Design' },
-    { id: 'strategy', name: 'Strategy' }
+    { id: 'strategy', name: 'Strategy' },
+    { id: 'branding', name: 'Branding' },
+    { id: 'systems', name: 'Systems' }
   ];
 
+  // Single blog post dated from last Friday
   const placeholderPosts = [
     {
-      id: 1,
-      title: 'The Future of Digital Disruption',
-      excerpt: 'Exploring how emerging technologies are reshaping industries and creating new opportunities for innovation.',
-      image: 'https://via.placeholder.com/800x600/1a1a1a/ffffff?text=Blog+Post+1',
-      category: 'technology',
+      id: 7,
+      title: 'How Creative Branding & Strategy Transforms Small Businesses Into Market Leaders',
+      excerpt: 'Discover how strategic branding can elevate your small business and create market leadership through creative positioning. Learn the proven strategies that turn small businesses into industry leaders through innovative branding approaches.',
+      image: '/images/blog/creative-branding-storytelling.png',
+      category: 'branding',
       author: 'Disruptors Media',
-      date: '2024-01-15',
-      readTime: '5 min read'
-    },
-    {
-      id: 2,
-      title: 'Mastering Content Marketing in 2024',
-      excerpt: 'Learn the latest strategies and techniques for creating compelling content that drives engagement and conversions.',
-      image: 'https://via.placeholder.com/800x600/2a2a2a/ffffff?text=Blog+Post+2',
-      category: 'marketing',
-      author: 'Disruptors Media',
-      date: '2024-01-12',
-      readTime: '7 min read'
-    },
-    {
-      id: 3,
-      title: 'Design Thinking for Business Growth',
-      excerpt: 'How design thinking principles can transform your approach to problem-solving and innovation.',
-      image: 'https://via.placeholder.com/800x600/3a3a3a/ffffff?text=Blog+Post+3',
-      category: 'design',
-      author: 'Disruptors Media',
-      date: '2024-01-10',
-      readTime: '6 min read'
-    },
-    {
-      id: 4,
-      title: 'Building Resilient Business Strategies',
-      excerpt: 'Discover how to create adaptable strategies that help your business thrive in uncertain times.',
-      image: 'https://via.placeholder.com/800x600/4a4a4a/ffffff?text=Blog+Post+4',
-      category: 'strategy',
-      author: 'Disruptors Media',
-      date: '2024-01-08',
+      date: '2025-08-29',
       readTime: '8 min read'
-    },
-    {
-      id: 5,
-      title: 'AI and the Creative Industry',
-      excerpt: 'Understanding the impact of artificial intelligence on creative processes and content creation.',
-      image: 'https://via.placeholder.com/800x600/5a5a5a/ffffff?text=Blog+Post+5',
-      category: 'technology',
-      author: 'Disruptors Media',
-      date: '2024-01-05',
-      readTime: '6 min read'
-    },
-    {
-      id: 6,
-      title: 'The Power of Visual Storytelling',
-      excerpt: 'How to use visual content to create memorable brand experiences and connect with your audience.',
-      image: 'https://via.placeholder.com/800x600/6a6a6a/ffffff?text=Blog+Post+6',
-      category: 'design',
-      author: 'Disruptors Media',
-      date: '2024-01-03',
-      readTime: '5 min read'
     }
   ];
 

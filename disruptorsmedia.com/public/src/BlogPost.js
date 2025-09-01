@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import './BlogPost.css';
+import { fetchBlogPostsFromSheet, fetchBlogPostsFromCSV } from './googleSheetsService';
 
 const apiUrl = process.env.REACT_APP_BASE_URL;
 
@@ -18,13 +19,34 @@ const BlogPost = () => {
 
   const fetchPost = async () => {
     try {
+      // First try to fetch from Google Sheets API
+      let sheetsPosts = await fetchBlogPostsFromSheet();
+      let sheetPost = sheetsPosts.find(p => p.id.toString() === id);
+      
+      if (sheetPost) {
+        setPost(sheetPost);
+        setLoading(false);
+        return;
+      }
+      
+      // If API fails, try CSV method
+      sheetsPosts = await fetchBlogPostsFromCSV();
+      sheetPost = sheetsPosts.find(p => p.id.toString() === id);
+      
+      if (sheetPost) {
+        setPost(sheetPost);
+        setLoading(false);
+        return;
+      }
+      
+      // Fallback to Laravel API
       const response = await fetch(`${apiUrl}/api/blog-posts/${id}`);
       const data = await response.json();
       setPost(data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching post:', error);
-      // Use placeholder data if API fails
+      // Use placeholder data if all methods fail
       setPost(getPlaceholderPost(id));
       setLoading(false);
     }
@@ -41,51 +63,164 @@ const BlogPost = () => {
     }
   };
 
-  const getPlaceholderPost = (postId) => ({
-    id: postId,
-    title: 'The Future of Digital Disruption',
-    content: `
-      <p>In today's rapidly evolving digital landscape, disruption has become the norm rather than the exception. Industries that once seemed untouchable are being transformed overnight by innovative technologies and forward-thinking companies.</p>
-      
-      <h2>Understanding Digital Disruption</h2>
-      <p>Digital disruption refers to the change that occurs when new digital technologies and business models affect the value proposition of existing goods and services. It's a phenomenon that has reshaped entire industries, from transportation with Uber to hospitality with Airbnb.</p>
-      
-      <blockquote>
-        "The greatest danger in times of turbulence is not the turbulence itself, but to act with yesterday's logic." - Peter Drucker
-      </blockquote>
-      
-      <h2>Key Technologies Driving Disruption</h2>
-      <p>Several technologies are at the forefront of digital disruption:</p>
-      <ul>
-        <li><strong>Artificial Intelligence and Machine Learning:</strong> Automating complex tasks and providing insights from vast amounts of data</li>
-        <li><strong>Internet of Things (IoT):</strong> Connecting physical devices to create smart ecosystems</li>
-        <li><strong>Blockchain:</strong> Revolutionizing trust and transparency in digital transactions</li>
-        <li><strong>5G Networks:</strong> Enabling faster, more reliable connectivity for emerging technologies</li>
-      </ul>
-      
-      <h2>Preparing for the Future</h2>
-      <p>To thrive in this era of disruption, businesses must:</p>
-      <ol>
-        <li>Embrace a culture of continuous innovation</li>
-        <li>Invest in digital transformation initiatives</li>
-        <li>Focus on customer-centric solutions</li>
-        <li>Build agile and adaptable organizational structures</li>
-        <li>Foster partnerships with technology innovators</li>
-      </ol>
-      
-      <p>The future belongs to those who can anticipate change and adapt quickly. By understanding the forces of digital disruption and positioning themselves strategically, businesses can turn potential threats into opportunities for growth and innovation.</p>
-    `,
-    featuredImage: 'https://via.placeholder.com/1200x600/1a1a1a/ffffff?text=Blog+Post+Featured+Image',
-    category: 'Technology',
-    author: {
-      name: 'Disruptors Media Team',
-      avatar: 'https://via.placeholder.com/100x100/333/fff?text=DM',
-      bio: 'Leading digital transformation and innovation strategies.'
-    },
-    date: '2024-01-15',
-    readTime: '8 min read',
-    tags: ['Digital Transformation', 'Innovation', 'Technology', 'Business Strategy']
-  });
+  const getPlaceholderPost = (postId) => {
+    const posts = {
+      5: {
+        title: 'AI and the Creative Industry',
+        featuredImage: '/images/blog/ai-creative-industry.png',
+        category: 'Technology',
+        content: `
+          <p>Artificial Intelligence is revolutionizing the creative industry, transforming how we approach design, content creation, and artistic expression. This collaboration between human creativity and machine intelligence is opening new possibilities we never imagined.</p>
+          
+          <img src="/images/blog/ai-creative-industry.png" alt="AI and Creative Industry" style="width: 100%; margin: 20px 0; border-radius: 8px;" />
+          
+          <h2>The Human-AI Creative Partnership</h2>
+          <p>Rather than replacing human creativity, AI serves as a powerful collaborator, enhancing our creative capabilities and enabling new forms of artistic expression.</p>
+          
+          <h2>Key Applications in Creative Fields</h2>
+          <ul>
+            <li><strong>Design Automation:</strong> AI assists in generating design variations and optimizing layouts</li>
+            <li><strong>Content Generation:</strong> From copywriting to visual assets, AI helps scale creative output</li>
+            <li><strong>Personalization:</strong> Creating tailored creative experiences for different audiences</li>
+            <li><strong>Creative Analysis:</strong> Understanding what resonates with audiences through data-driven insights</li>
+          </ul>
+          
+          <p>The future of creativity lies in understanding how to harness AI as a creative partner, amplifying human imagination and efficiency.</p>
+        `,
+        tags: ['AI', 'Creativity', 'Technology', 'Innovation']
+      },
+      3: {
+        title: 'Design Thinking for Business Growth',
+        featuredImage: '/images/blog/design-thinking-growth.png',
+        category: 'Design',
+        content: `
+          <p>Design thinking is more than just a creative process—it's a strategic approach that can transform how businesses solve problems and drive growth.</p>
+          
+          <img src="/images/blog/design-thinking-growth.png" alt="Design Thinking for Business Growth" style="width: 100%; margin: 20px 0; border-radius: 8px;" />
+          
+          <h2>The Design Thinking Framework</h2>
+          <p>This human-centered approach follows five key stages: Empathize, Define, Ideate, Prototype, and Test.</p>
+          
+          <h2>Business Growth Applications</h2>
+          <ul>
+            <li><strong>Customer Experience:</strong> Understanding and improving customer journeys</li>
+            <li><strong>Product Innovation:</strong> Creating solutions that truly meet market needs</li>
+            <li><strong>Process Optimization:</strong> Redesigning workflows for efficiency</li>
+            <li><strong>Strategic Planning:</strong> Approaching business challenges with creative solutions</li>
+          </ul>
+          
+          <p>By adopting design thinking principles, businesses can create more innovative solutions and stronger connections with their customers.</p>
+        `,
+        tags: ['Design Thinking', 'Business Growth', 'Innovation', 'Strategy']
+      },
+      7: {
+        title: 'How Creative Branding & Strategy Transforms Small Businesses Into Market Leaders',
+        featuredImage: '/images/blog/creative-branding-storytelling.png',
+        category: 'Branding',
+        content: `
+          <p>In today's competitive marketplace, small businesses need more than just great products—they need powerful branding that sets them apart and positions them as market leaders.</p>
+          
+          <img src="/images/blog/creative-branding-storytelling.png" alt="Creative Branding Strategy" style="width: 100%; margin: 20px 0; border-radius: 8px;" />
+          
+          <h2>The Power of Strategic Branding</h2>
+          <p>Creative branding goes beyond logos and color schemes. It's about crafting a compelling narrative that resonates with your target audience and differentiates you from competitors.</p>
+          
+          <h2>Key Elements of Transformative Branding</h2>
+          <ul>
+            <li><strong>Brand Positioning:</strong> Defining your unique place in the market</li>
+            <li><strong>Visual Identity:</strong> Creating memorable and consistent visual elements</li>
+            <li><strong>Brand Voice:</strong> Developing a distinctive communication style</li>
+            <li><strong>Customer Experience:</strong> Ensuring every touchpoint reflects your brand values</li>
+          </ul>
+          
+          <p>When done right, creative branding and strategy can transform small businesses into industry leaders and trusted authorities in their field.</p>
+        `,
+        tags: ['Branding', 'Strategy', 'Small Business', 'Market Leadership']
+      },
+      8: {
+        title: 'The Power of Systems & Automations for Creatives Who Want More Time to Create',
+        featuredImage: '/images/blog/systems-automations-creatives.png',
+        category: 'Systems',
+        content: `
+          <p>As a creative professional, your time is your most valuable asset. Yet many creatives find themselves bogged down by administrative tasks, client management, and repetitive processes that drain their energy and stifle their creativity.</p>
+          
+          <img src="/images/blog/systems-automations-creatives.png" alt="Systems and Automations for Creatives" style="width: 100%; margin: 20px 0; border-radius: 8px;" />
+          
+          <h2>The Creative's Dilemma</h2>
+          <p>Many talented creatives struggle to balance their artistic pursuits with the business side of their work. Systems and automation can be the key to reclaiming your creative time.</p>
+          
+          <h2>Essential Systems Every Creative Needs</h2>
+          <ul>
+            <li><strong>Client Onboarding:</strong> Streamlined processes for new client intake</li>
+            <li><strong>Project Management:</strong> Organized workflows from concept to completion</li>
+            <li><strong>Communication:</strong> Automated updates and client communication</li>
+            <li><strong>Financial Management:</strong> Invoicing, payments, and expense tracking</li>
+          </ul>
+          
+          <p>By implementing smart systems and automation, you can free up dozens of hours each week to focus on what you do best—creating amazing work.</p>
+        `,
+        tags: ['Systems', 'Automation', 'Productivity', 'Creative Business']
+      },
+      9: {
+        title: 'How a 360 Marketing Agency Builds Revenue Streams You Never Knew Existed',
+        featuredImage: '/images/blog/360-marketing-revenue-streams.png',
+        category: 'Marketing',
+        content: `
+          <p>Traditional marketing agencies are evolving into comprehensive 360-degree marketing powerhouses, uncovering revenue opportunities that most businesses never realize exist.</p>
+          
+          <img src="/images/blog/360-marketing-revenue-streams.png" alt="360 Marketing Revenue Streams" style="width: 100%; margin: 20px 0; border-radius: 8px;" />
+          
+          <h2>Beyond Traditional Marketing Services</h2>
+          <p>A true 360 marketing approach looks at every aspect of your business ecosystem to identify untapped revenue potential and growth opportunities.</p>
+          
+          <h2>Hidden Revenue Streams</h2>
+          <ul>
+            <li><strong>Data Monetization:</strong> Turning customer insights into profitable strategies</li>
+            <li><strong>Partnership Opportunities:</strong> Strategic collaborations that create new income sources</li>
+            <li><strong>Content Repurposing:</strong> Maximizing the value of every piece of content created</li>
+            <li><strong>Community Building:</strong> Creating engaged audiences that drive long-term value</li>
+          </ul>
+          
+          <p>By taking a holistic approach to marketing, businesses can discover multiple revenue streams they never knew existed, creating sustainable growth and competitive advantages.</p>
+        `,
+        tags: ['Marketing', 'Revenue Streams', 'Business Growth', '360 Marketing']
+      }
+    };
+    
+    const defaultPost = {
+      id: postId,
+      title: 'The Future of Digital Disruption',
+      content: `
+        <p>In today's rapidly evolving digital landscape, disruption has become the norm rather than the exception. Industries that once seemed untouchable are being transformed overnight by innovative technologies and forward-thinking companies.</p>
+        
+        <h2>Understanding Digital Disruption</h2>
+        <p>Digital disruption refers to the change that occurs when new digital technologies and business models affect the value proposition of existing goods and services.</p>
+        
+        <p>The future belongs to those who can anticipate change and adapt quickly. By understanding the forces of digital disruption and positioning themselves strategically, businesses can turn potential threats into opportunities for growth and innovation.</p>
+      `,
+      featuredImage: 'https://via.placeholder.com/1200x600/1a1a1a/ffffff?text=Blog+Post+Featured+Image',
+      category: 'Technology',
+      author: {
+        name: 'Disruptors Media Team',
+        avatar: 'https://via.placeholder.com/100x100/333/fff?text=DM',
+        bio: 'Leading digital transformation and innovation strategies.'
+      },
+      date: '2024-01-15',
+      readTime: '8 min read',
+      tags: ['Digital Transformation', 'Innovation', 'Technology', 'Business Strategy']
+    };
+    
+    const selectedPost = posts[postId] || defaultPost;
+    return {
+      ...selectedPost,
+      id: postId,
+      author: {
+        name: 'Disruptors Media Team',
+        avatar: 'https://via.placeholder.com/100x100/333/fff?text=DM',
+        bio: 'Leading digital transformation and innovation strategies.'
+      }
+    };
+  };
 
   const getPlaceholderRelatedPosts = () => [
     {
@@ -182,13 +317,15 @@ const BlogPost = () => {
               )}
               
               {/* Author Box */}
-              <div className="blog-post-author">
-                <img src={post.author.avatar} alt={post.author.name} />
-                <div className="author-info">
-                  <h4>{post.author.name}</h4>
-                  <p>{post.author.bio}</p>
+              {post.author && (
+                <div className="blog-post-author">
+                  <img src={post.author.avatar} alt={post.author.name} />
+                  <div className="author-info">
+                    <h4>{post.author.name}</h4>
+                    <p>{post.author.bio}</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </article>
 
             {/* Sidebar */}

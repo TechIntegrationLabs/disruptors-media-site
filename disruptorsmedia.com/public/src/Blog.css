@@ -1,7 +1,7 @@
 /* Blog Page Styles */
 .blog-page {
   min-height: 100vh;
-  background: #000;
+  background: url('./images/main-bg.jpg') repeat;
   color: #fff;
 }
 
@@ -11,7 +11,7 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: #000;
+  background: url('./images/main-bg.jpg') repeat;
 }
 
 .loader {
@@ -32,7 +32,7 @@
 .blog-hero {
   padding: 120px 0 60px;
   text-align: center;
-  background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
+  background: transparent;
 }
 
 .blog-title {
@@ -53,7 +53,7 @@
 /* Category Filter */
 .blog-filter {
   padding: 40px 0;
-  border-bottom: 1px solid #222;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .filter-tabs {
@@ -65,8 +65,8 @@
 
 .filter-tab {
   background: transparent;
-  border: 1px solid #333;
-  color: #999;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ccc;
   padding: 10px 24px;
   border-radius: 25px;
   cursor: pointer;
@@ -76,7 +76,7 @@
 }
 
 .filter-tab:hover {
-  border-color: #666;
+  border-color: rgba(255, 255, 255, 0.4);
   color: #fff;
 }
 
@@ -100,17 +100,19 @@
 
 /* Blog Card */
 .blog-card {
-  background: #0a0a0a;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .blog-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(255, 255, 255, 0.1);
-  border-color: #333;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .blog-card-link {
@@ -123,7 +125,7 @@
   position: relative;
   padding-bottom: 60%;
   overflow: hidden;
-  background: #1a1a1a;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .blog-card-image img {
@@ -200,8 +202,8 @@
 /* Newsletter Section */
 .blog-newsletter {
   padding: 80px 0;
-  background: #0a0a0a;
-  border-top: 1px solid #222;
+  background: transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .newsletter-content {
@@ -230,8 +232,10 @@
 
 .newsletter-input {
   flex: 1;
-  background: #1a1a1a;
-  border: 1px solid #333;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 15px 20px;
   border-radius: 8px;
   color: #fff;
@@ -241,7 +245,7 @@
 
 .newsletter-input:focus {
   outline: none;
-  border-color: #666;
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .newsletter-input::placeholder {
@@ -249,8 +253,8 @@
 }
 
 .newsletter-button {
-  background: #fff;
-  color: #000;
+  background: #2B2B2B;
+  color: #F1EDE9;
   border: none;
   padding: 15px 30px;
   border-radius: 8px;
@@ -262,24 +266,62 @@
 
 .newsletter-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 20px rgba(43, 43, 43, 0.4);
 }
 
 /* Container */
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 40px;
+}
+
+/* Navigation Enhancement */
+.header .navigation {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.header .navigation li {
+  display: inline-block !important;
+  margin: 0 12px !important;
+  white-space: nowrap;
+}
+
+.header .navigation li a {
+  white-space: nowrap;
+}
+
+/* Header container wider */
+.header .container {
+  max-width: 1400px !important;
+}
+
+/* Blog Content Wider */
+.blog-grid {
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)) !important;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+  .header .navigation li {
+    margin: 0 8px !important;
+    font-size: 18px !important;
+  }
+}
+
 @media (max-width: 768px) {
   .blog-hero {
     padding: 80px 0 40px;
   }
   
   .blog-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
     gap: 30px;
   }
   
@@ -306,5 +348,9 @@
   
   .newsletter-button {
     width: 100%;
+  }
+  
+  .container {
+    padding: 0 20px;
   }
 }
