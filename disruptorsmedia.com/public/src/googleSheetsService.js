@@ -3,6 +3,7 @@
 
 const SHEET_ID = '1KWGeHUOjKtYINSqeneEF8U9hKjEs3U1UTUPaff6OWpA';
 const SHEET_GID = '592360517'; // Specific sheet tab
+const SHEET_NAME = 'Approved - Blog Deployment Queue'; // Specific sheet name for API
 const API_KEY = process.env.REACT_APP_GOOGLE_API_KEY || '';
 const RANGE = 'A1:Z100'; // Adjust based on your data range
 
@@ -14,7 +15,7 @@ export const fetchBlogPostsFromSheet = async () => {
       return [];
     }
 
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!${RANGE}?key=${API_KEY}`;
     
     const response = await fetch(url);
     if (!response.ok) {
@@ -32,6 +33,9 @@ export const fetchBlogPostsFromSheet = async () => {
     const headers = rows[0];
     const blogPosts = [];
     
+    console.log('Google Sheets Headers:', headers);
+    console.log('Total rows:', rows.length);
+    
     // Find column indices based on your actual Google Sheet headers
     const columnIndices = {
       title: headers.findIndex(h => h.toLowerCase() === 'title'),
@@ -39,6 +43,8 @@ export const fetchBlogPostsFromSheet = async () => {
       image: headers.findIndex(h => h.toLowerCase() === 'image'),
       postDate: headers.findIndex(h => h.toLowerCase().includes('post date'))
     };
+    
+    console.log('Column indices:', columnIndices);
 
     // Process each row (skip header row)
     for (let i = 1; i < rows.length; i++) {
@@ -49,12 +55,10 @@ export const fetchBlogPostsFromSheet = async () => {
 
       // Parse the post date (your sheet uses "Post Date" column)
       const postDateStr = row[columnIndices.postDate] || '';
-      const postDate = new Date(postDateStr);
-      const today = new Date();
-      today.setHours(23, 59, 59, 999); // Set to end of today to include today's posts
-
-      // Include posts with dates up to today (or if no date specified)
-      const shouldInclude = !postDateStr || postDate <= today;
+      
+      // Show ALL posts regardless of date for now (since your post is 8/30/2025)
+      // You can modify this logic later to only show past posts
+      const shouldInclude = true; // Show all posts with titles
       
       if (shouldInclude) {
         const title = row[columnIndices.title] || '';
@@ -87,9 +91,12 @@ export const fetchBlogPostsFromSheet = async () => {
           content: contentUrl // Store the Google Docs link
         };
 
+        console.log('Adding blog post:', blogPost);
         blogPosts.push(blogPost);
       }
     }
+
+    console.log('Final blog posts:', blogPosts);
 
     // Sort by date (newest first) - handle both date strings and Date objects
     blogPosts.sort((a, b) => {
@@ -140,6 +147,9 @@ export const fetchBlogPostsFromCSV = async () => {
     const headers = rows[0];
     const blogPosts = [];
     
+    console.log('CSV Headers:', headers);
+    console.log('CSV Total rows:', rows.length);
+    
     // Find column indices based on your actual sheet headers
     const columnIndices = {
       title: headers.findIndex(h => h.toLowerCase() === 'title'),
@@ -147,6 +157,8 @@ export const fetchBlogPostsFromCSV = async () => {
       image: headers.findIndex(h => h.toLowerCase() === 'image'),
       postDate: headers.findIndex(h => h.toLowerCase().includes('post date'))
     };
+    
+    console.log('CSV Column indices:', columnIndices);
 
     // Process each row
     for (let i = 1; i < rows.length; i++) {
@@ -154,12 +166,10 @@ export const fetchBlogPostsFromCSV = async () => {
       if (!row || row.length === 0 || !row[columnIndices.title] || row[columnIndices.title].trim() === '') continue;
 
       const postDateStr = row[columnIndices.postDate] || '';
-      const postDate = new Date(postDateStr);
-      const today = new Date();
-      today.setHours(23, 59, 59, 999);
-
-      // Include posts with dates up to today (or if no date specified)
-      const shouldInclude = !postDateStr || postDate <= today;
+      
+      // Show ALL posts regardless of date for now (since your post is 8/30/2025)
+      // You can modify this logic later to only show past posts
+      const shouldInclude = true; // Show all posts with titles
       
       if (shouldInclude) {
         const title = row[columnIndices.title] || '';
