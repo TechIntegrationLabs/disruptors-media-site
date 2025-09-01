@@ -10,7 +10,7 @@ export const fetchBlogPostsFromSheet = async () => {
   try {
     // If no API key, return empty array
     if (!API_KEY) {
-      console.warn('Google Sheets API key not configured. Using placeholder data.');
+      console.warn('Google Sheets API key not configured. Using CSV fallback.');
       return [];
     }
 
@@ -32,19 +32,12 @@ export const fetchBlogPostsFromSheet = async () => {
     const headers = rows[0];
     const blogPosts = [];
     
-    // Find column indices based on actual Google Sheet headers
+    // Find column indices based on your actual Google Sheet headers
     const columnIndices = {
       title: headers.findIndex(h => h.toLowerCase() === 'title'),
-      postUrl: headers.findIndex(h => h.toLowerCase().includes('post url')),
-      client: headers.findIndex(h => h.toLowerCase() === 'client'),
-      status: headers.findIndex(h => h.toLowerCase() === 'status'),
-      primaryKeyword: headers.findIndex(h => h.toLowerCase().includes('primary keyword')),
-      secondaryKeyword: headers.findIndex(h => h.toLowerCase().includes('secondary keyword')),
-      targetUrl: headers.findIndex(h => h.toLowerCase().includes('target url')),
-      publishDate: headers.findIndex(h => h.toLowerCase().includes('publish date')),
-      contentType: headers.findIndex(h => h.toLowerCase().includes('content type')),
-      platform: headers.findIndex(h => h.toLowerCase() === 'platform'),
-      approved: headers.findIndex(h => h.toLowerCase().includes('approved'))
+      content: headers.findIndex(h => h.toLowerCase() === 'content'),
+      image: headers.findIndex(h => h.toLowerCase() === 'image'),
+      postDate: headers.findIndex(h => h.toLowerCase().includes('post date'))
     };
 
     // Process each row (skip header row)
@@ -52,83 +45,76 @@ export const fetchBlogPostsFromSheet = async () => {
       const row = rows[i];
       
       // Skip empty rows
-      if (!row || row.length === 0) continue;
+      if (!row || row.length === 0 || !row[columnIndices.title] || row[columnIndices.title].trim() === '') continue;
 
-      // Parse the publish date
-      const publishDateStr = row[columnIndices.publishDate] || '';
-      const publishDate = new Date(publishDateStr);
+      // Parse the post date (your sheet uses "Post Date" column)
+      const postDateStr = row[columnIndices.postDate] || '';
+      const postDate = new Date(postDateStr);
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      today.setHours(23, 59, 59, 999); // Set to end of today to include today's posts
 
-      // Only include posts with publish dates up to today and approved status
-      const isApproved = row[columnIndices.approved]?.toLowerCase() === 'yes' || 
-                        row[columnIndices.approved]?.toLowerCase() === 'true';
+      // Include posts with dates up to today (or if no date specified)
+      const shouldInclude = !postDateStr || postDate <= today;
       
-      if (publishDate <= today && publishDateStr && isApproved) {
-        // Extract excerpt from title or keywords
+      if (shouldInclude) {
         const title = row[columnIndices.title] || '';
-        const primaryKeyword = row[columnIndices.primaryKeyword] || '';
-        const secondaryKeyword = row[columnIndices.secondaryKeyword] || '';
+        const contentUrl = row[columnIndices.content] || '';
+        const imageUrl = row[columnIndices.image] || '/images/blog/creative-branding-storytelling.png';
         
-        // Create excerpt from keywords or truncate title
-        let excerpt = '';
-        if (primaryKeyword || secondaryKeyword) {
-          excerpt = `Learn about ${primaryKeyword}${secondaryKeyword ? ' and ' + secondaryKeyword : ''} in this comprehensive guide.`;
-        } else {
-          excerpt = title.length > 150 ? title.substring(0, 150) + '...' : title;
-        }
+        // Create excerpt from title
+        const excerpt = title.length > 150 ? title.substring(0, 150) + '...' : 
+                       `Explore insights and strategies to help grow your business through effective ${title.toLowerCase().includes('content') ? 'content creation' : 'marketing'} approaches.`;
 
-        // Determine category from content type or keywords
-        let category = 'general';
-        const contentType = (row[columnIndices.contentType] || '').toLowerCase();
-        if (contentType.includes('tech')) category = 'technology';
-        else if (contentType.includes('market')) category = 'marketing';
-        else if (contentType.includes('design')) category = 'design';
-        else if (contentType.includes('brand')) category = 'branding';
-        else if (contentType.includes('strategy')) category = 'strategy';
-        else if (contentType.includes('system')) category = 'systems';
+        // Determine category from title content
+        let category = 'marketing';
+        const titleLower = title.toLowerCase();
+        if (titleLower.includes('tech') || titleLower.includes('digital')) category = 'technology';
+        else if (titleLower.includes('design') || titleLower.includes('visual')) category = 'design';
+        else if (titleLower.includes('brand') || titleLower.includes('identity')) category = 'branding';
+        else if (titleLower.includes('strategy') || titleLower.includes('strategic')) category = 'strategy';
+        else if (titleLower.includes('system') || titleLower.includes('automation')) category = 'systems';
 
         const blogPost = {
           id: i,
           title: title,
           excerpt: excerpt,
-          postUrl: row[columnIndices.postUrl] || '',
+          postUrl: contentUrl,
           category: category,
-          author: row[columnIndices.client] || 'Disruptors Media',
-          date: publishDateStr,
-          image: '/images/blog/placeholder.png', // You can add image URLs to the sheet later
+          author: 'Disruptors Media',
+          date: postDateStr || new Date().toISOString().split('T')[0],
+          image: imageUrl,
           readTime: '5 min read',
-          primaryKeyword: primaryKeyword,
-          secondaryKeyword: secondaryKeyword,
-          targetUrl: row[columnIndices.targetUrl] || ''
+          content: contentUrl // Store the Google Docs link
         };
 
-        // Only add if we have at least a title
-        if (blogPost.title && blogPost.title.trim() !== '') {
-          blogPosts.push(blogPost);
-        }
+        blogPosts.push(blogPost);
       }
     }
 
-    // Sort by date (newest first)
-    blogPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+    // Sort by date (newest first) - handle both date strings and Date objects
+    blogPosts.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateB - dateA;
+    });
 
     return blogPosts;
 
   } catch (error) {
-    console.error('Error fetching blog posts from Google Sheets:', error);
-    return [];
+    console.error('Error fetching blog posts from Google Sheets API:', error);
+    // Fall back to CSV method
+    return await fetchBlogPostsFromCSV();
   }
 };
 
 // Helper function to check if a post should be visible based on its date
 export const isPostVisible = (postDate) => {
+  if (!postDate) return true; // Show posts without dates
+  
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setHours(23, 59, 59, 999); // Include today's posts
   
   const postDateObj = new Date(postDate);
-  postDateObj.setHours(0, 0, 0, 0);
-  
   return postDateObj <= today;
 };
 
@@ -150,85 +136,72 @@ export const fetchBlogPostsFromCSV = async () => {
       return [];
     }
 
-    // Process similar to above
+    // Process CSV data similar to API method
     const headers = rows[0];
     const blogPosts = [];
     
-    // Find column indices based on actual Google Sheet headers
+    // Find column indices based on your actual sheet headers
     const columnIndices = {
       title: headers.findIndex(h => h.toLowerCase() === 'title'),
-      postUrl: headers.findIndex(h => h.toLowerCase().includes('post url')),
-      client: headers.findIndex(h => h.toLowerCase() === 'client'),
-      status: headers.findIndex(h => h.toLowerCase() === 'status'),
-      primaryKeyword: headers.findIndex(h => h.toLowerCase().includes('primary keyword')),
-      secondaryKeyword: headers.findIndex(h => h.toLowerCase().includes('secondary keyword')),
-      targetUrl: headers.findIndex(h => h.toLowerCase().includes('target url')),
-      publishDate: headers.findIndex(h => h.toLowerCase().includes('publish date')),
-      contentType: headers.findIndex(h => h.toLowerCase().includes('content type')),
-      platform: headers.findIndex(h => h.toLowerCase() === 'platform'),
-      approved: headers.findIndex(h => h.toLowerCase().includes('approved'))
+      content: headers.findIndex(h => h.toLowerCase() === 'content'),
+      image: headers.findIndex(h => h.toLowerCase() === 'image'),
+      postDate: headers.findIndex(h => h.toLowerCase().includes('post date'))
     };
 
     // Process each row
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
-      if (!row || row.length === 0) continue;
+      if (!row || row.length === 0 || !row[columnIndices.title] || row[columnIndices.title].trim() === '') continue;
 
-      const publishDateStr = row[columnIndices.publishDate] || '';
-      const publishDate = new Date(publishDateStr);
+      const postDateStr = row[columnIndices.postDate] || '';
+      const postDate = new Date(postDateStr);
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      today.setHours(23, 59, 59, 999);
 
-      // Only include posts with publish dates up to today and approved status
-      const isApproved = row[columnIndices.approved]?.toLowerCase() === 'yes' || 
-                        row[columnIndices.approved]?.toLowerCase() === 'true';
+      // Include posts with dates up to today (or if no date specified)
+      const shouldInclude = !postDateStr || postDate <= today;
       
-      if (publishDate <= today && publishDateStr && isApproved) {
-        // Extract excerpt from title or keywords
+      if (shouldInclude) {
         const title = row[columnIndices.title] || '';
-        const primaryKeyword = row[columnIndices.primaryKeyword] || '';
-        const secondaryKeyword = row[columnIndices.secondaryKeyword] || '';
+        const contentUrl = row[columnIndices.content] || '';
+        const imageUrl = row[columnIndices.image] || '/images/blog/creative-branding-storytelling.png';
         
-        // Create excerpt from keywords or truncate title
-        let excerpt = '';
-        if (primaryKeyword || secondaryKeyword) {
-          excerpt = `Learn about ${primaryKeyword}${secondaryKeyword ? ' and ' + secondaryKeyword : ''} in this comprehensive guide.`;
-        } else {
-          excerpt = title.length > 150 ? title.substring(0, 150) + '...' : title;
-        }
+        // Create excerpt from title
+        const excerpt = title.length > 150 ? title.substring(0, 150) + '...' : 
+                       `Explore insights and strategies to help grow your business through effective ${title.toLowerCase().includes('content') ? 'content creation' : 'marketing'} approaches.`;
 
-        // Determine category from content type or keywords
-        let category = 'general';
-        const contentType = (row[columnIndices.contentType] || '').toLowerCase();
-        if (contentType.includes('tech')) category = 'technology';
-        else if (contentType.includes('market')) category = 'marketing';
-        else if (contentType.includes('design')) category = 'design';
-        else if (contentType.includes('brand')) category = 'branding';
-        else if (contentType.includes('strategy')) category = 'strategy';
-        else if (contentType.includes('system')) category = 'systems';
+        // Determine category from title content
+        let category = 'marketing';
+        const titleLower = title.toLowerCase();
+        if (titleLower.includes('tech') || titleLower.includes('digital')) category = 'technology';
+        else if (titleLower.includes('design') || titleLower.includes('visual')) category = 'design';
+        else if (titleLower.includes('brand') || titleLower.includes('identity')) category = 'branding';
+        else if (titleLower.includes('strategy') || titleLower.includes('strategic')) category = 'strategy';
+        else if (titleLower.includes('system') || titleLower.includes('automation')) category = 'systems';
 
         const blogPost = {
           id: i,
           title: title,
           excerpt: excerpt,
-          postUrl: row[columnIndices.postUrl] || '',
+          postUrl: contentUrl,
           category: category,
-          author: row[columnIndices.client] || 'Disruptors Media',
-          date: publishDateStr,
-          image: '/images/blog/placeholder.png',
+          author: 'Disruptors Media',
+          date: postDateStr || new Date().toISOString().split('T')[0],
+          image: imageUrl,
           readTime: '5 min read',
-          primaryKeyword: primaryKeyword,
-          secondaryKeyword: secondaryKeyword,
-          targetUrl: row[columnIndices.targetUrl] || ''
+          content: contentUrl
         };
 
-        if (blogPost.title && blogPost.title.trim() !== '') {
-          blogPosts.push(blogPost);
-        }
+        blogPosts.push(blogPost);
       }
     }
 
-    blogPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+    blogPosts.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateB - dateA;
+    });
+
     return blogPosts;
 
   } catch (error) {
@@ -243,6 +216,8 @@ function parseCSV(csvText) {
   const result = [];
   
   for (const line of lines) {
+    if (!line.trim()) continue; // Skip empty lines
+    
     const row = [];
     let current = '';
     let inQuotes = false;
