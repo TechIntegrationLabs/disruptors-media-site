@@ -16,7 +16,6 @@
     Cache-Control = "public, max-age=31536000, immutable"
 
 [build]
-  base = "disruptorsmedia.com/public"
   command = "npm run build"
   publish = "build"
 

@@ -57,6 +57,12 @@ const Header = ({ currentPath }) => {
                 <a href={'/' + headerMenu.menu_name} className="shuffle">{headerMenu.menu_name}</a>
               </li>
             ))}
+            <li>
+              <a href="/blog" className="shuffle">Blog</a>
+            </li>
+            <li>
+              <a href="/ai-solutions" className="shuffle">AI Solutions</a>
+            </li>
           </ul>
         </div>
         <div className="col-sm-3 text-right">
@@ -127,6 +133,12 @@ const Header = ({ currentPath }) => {
                 <a href={'/' + headerMenu.menu_name} className={currentPath === headerMenu.menu_name ? 'active' : ''}>{headerMenu.menu_name}</a>
               </li>
             ))}
+                  <li>
+                    <a href="/blog" className={currentPath === 'blog' ? 'active' : ''}>Blog</a>
+                  </li>
+                  <li>
+                    <a href="/ai-solutions" className={currentPath === 'ai-solutions' ? 'active' : ''}>AI Solutions</a>
+                  </li>
                 </ul>
               </div>
             </div>

@@ -18,6 +18,8 @@ import Privacy from './privacy';
 import Terms from './terms';
 import Blog from './Blog';
 import BlogPost from './BlogPost';
+import LongtailLandingPage from './LongtailLandingPage';
+import AILandingPagesDirectory from './AILandingPagesDirectory';
 import { ReactLenis, useLenis } from '@studio-freight/react-lenis';
 import './App.css';
 
@@ -111,8 +113,8 @@ function App() {
   };
 
   return (
-    <ReactLenis root>
-    <Analytics />
+    <>
+      <Analytics />
       <div className={`main-app ${fadeIn ? 'fade-in' : 'fade-out'}`}>
         <>
           {hasLoadedCookie && (
@@ -155,6 +157,8 @@ function App() {
                 <Route path="/podcast" element={<Podcast />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:id" element={<BlogPost />} />
+                <Route path="/ai-solutions" element={<AILandingPagesDirectory />} />
+                <Route path="/ai/:slug" element={<LongtailLandingPage />} />
                 <Route path="/privacy-policy" element={<Privacy />} />
                 <Route path="/terms-conditions" element={<Terms />} />
                 <Route path="*" element={<Notfound />} />
@@ -168,7 +172,7 @@ function App() {
           )}
         </>
       </div>
-    </ReactLenis>
+    </>
   );
 }
 

@@ -1,0 +1,29 @@
+name: disruptors-media-frontend
+static_sites:
+- name: disruptors-frontend-static
+  source_dir: disruptorsmedia.com/public
+  github:
+    repo: TechIntegrationLabs/disruptors-media-site
+    branch: main
+    deploy_on_push: true
+  build_command: npm install && npm run build
+  output_dir: build
+  index_document: index.html
+  catchall_document: index.html
+  envs:
+  - key: NODE_VERSION
+    value: "18"
+  - key: REACT_APP_BASE_URL
+    value: "https://disruptors-media-backend-vcbkh.ondigitalocean.app"
+  cors:
+    allow_origins:
+    - exact: "https://disruptorsmedia.com"
+    - exact: "https://www.disruptorsmedia.com"
+    allow_methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+    allow_headers:
+    - "*"

@@ -1,0 +1,158 @@
+{
+  "name": "@disruptors/ai-module-agent",
+  "version": "1.0.0",
+  "description": "AI-First Module Agent for autonomous website module management",
+  "main": "core/agent.js",
+  "bin": {
+    "ai-module-agent": "./cli/index.js"
+  },
+  "scripts": {
+    "start": "node core/agent.js start",
+    "stop": "node core/agent.js stop",
+    "status": "node core/agent.js status",
+    "discover": "node core/agent.js discover",
+    "install": "npm install --production",
+    "dev": "NODE_ENV=development node core/agent.js start",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .js --fix",
+    "docs": "node scripts/generate-docs.js",
+    "build": "node scripts/build.js",
+    "setup": "node scripts/setup.js"
+  },
+  "keywords": [
+    "ai",
+    "automation",
+    "modules",
+    "website",
+    "development",
+    "orchestration",
+    "intelligent",
+    "agent",
+    "management",
+    "lifecycle"
+  ],
+  "author": "Disruptors Media <dev@disruptorsmedia.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/disruptors-media/ai-module-agent.git"
+  },
+  "homepage": "https://github.com/disruptors-media/ai-module-agent#readme",
+  "bugs": {
+    "url": "https://github.com/disruptors-media/ai-module-agent/issues"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "chokidar": "^3.5.3",
+    "node-cron": "^3.0.2",
+    "glob": "^10.3.10",
+    "semver": "^7.5.4",
+    "axios": "^1.6.0",
+    "openai": "^4.20.0",
+    "fs-extra": "^11.1.1",
+    "yaml": "^2.3.4",
+    "chalk": "^5.3.0",
+    "ora": "^7.0.1",
+    "inquirer": "^9.2.11",
+    "commander": "^11.1.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "jsdom": "^22.1.0",
+    "markdown-it": "^13.0.2",
+    "front-matter": "^4.0.2",
+    "json-schema": "^0.4.0",
+    "ajv": "^8.12.0",
+    "ws": "^8.14.2",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "winston": "^3.11.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "eslint": "^8.54.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-n": "^16.3.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "prettier": "^3.1.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.1.0",
+    "@types/node": "^20.9.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.3",
+    "tmp": "^0.2.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!**/node_modules/**",
+      "!**/coverage/**",
+      "!jest.config.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 80,
+        "lines": 75,
+        "statements": 75
+      }
+    }
+  },
+  "eslintConfig": {
+    "extends": [
+      "standard"
+    ],
+    "env": {
+      "node": true,
+      "jest": true
+    },
+    "rules": {
+      "no-console": "warn",
+      "max-len": [
+        "error",
+        {
+          "code": 100
+        }
+      ]
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "files": [
+    "core/",
+    "services/",
+    "intelligence/",
+    "integrations/",
+    "config/",
+    "templates/",
+    "cli/",
+    "scripts/",
+    "README.md",
+    "CHANGELOG.md"
+  ]
+}

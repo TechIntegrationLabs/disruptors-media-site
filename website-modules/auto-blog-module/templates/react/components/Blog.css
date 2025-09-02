@@ -2,25 +2,7 @@
 .blog-page {
   min-height: 100vh;
   background: url('./images/main-bg.jpg') repeat;
-  color: #1a1a1a;
-}
-
-/* Ensure all text is dark on the blog listing page */
-.blog-page *,
-.blog-page .blog-post-title,
-.blog-page .blog-post-excerpt,
-.blog-page .blog-post-meta,
-.blog-page h1, .blog-page h2, .blog-page h3, .blog-page h4, .blog-page h5, .blog-page h6,
-.blog-page p, .blog-page span, .blog-page div:not(.blog-card),
-.blog-page .blog-category-filter .filter-tab,
-.blog-page .blog-category-filter .filter-tab.active,
-.blog-page .blog-title,
-.blog-page .blog-subtitle,
-.blog-page .blog-card-title,
-.blog-page .blog-card-excerpt,
-.blog-page .blog-card-meta,
-.blog-page .filter-tab {
-  color: #1a1a1a !important;
+  color: #fff;
 }
 
 /* Loading State */
@@ -46,33 +28,31 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Minimal Compact Hero Section */
+/* Hero Section */
 .blog-hero {
-  padding: 40px 0 20px;
+  padding: 120px 0 60px;
   text-align: center;
   background: transparent;
 }
 
 .blog-title {
-  font-size: clamp(3rem, 6vw, 5rem);
-  font-weight: 800;
-  margin-bottom: 8px;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 700;
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
 }
 
 .blog-subtitle {
-  font-size: clamp(0.95rem, 1.5vw, 1.1rem);
-  color: #666;
-  max-width: 500px;
-  margin: 0 auto 0;
-  line-height: 1.4;
-  font-weight: 400;
+  font-size: clamp(1.1rem, 2vw, 1.3rem);
+  color: #999;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
-/* Compact Category Filter */
+/* Category Filter */
 .blog-filter {
-  padding: 25px 0 20px;
+  padding: 40px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -106,16 +86,16 @@
   border-color: #fff;
 }
 
-/* Compact Blog Grid */
+/* Blog Grid */
 .blog-grid-section {
-  padding: 30px 0 100px;
+  padding: 60px 0 100px;
 }
 
 .blog-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 40px;
-  margin-top: 0;
+  margin-top: 40px;
 }
 
 /* Blog Card */
@@ -337,25 +317,7 @@
 
 @media (max-width: 768px) {
   .blog-hero {
-    padding: 30px 0 15px;
-  }
-  
-  .blog-title {
-    font-size: clamp(2.2rem, 8vw, 3.5rem);
-    margin-bottom: 6px;
-  }
-  
-  .blog-subtitle {
-    font-size: clamp(0.9rem, 2vw, 1rem);
-    margin-bottom: 0;
-  }
-  
-  .blog-filter {
-    padding: 20px 0 15px;
-  }
-  
-  .blog-grid-section {
-    padding: 25px 0 80px;
+    padding: 80px 0 40px;
   }
   
   .blog-grid {

@@ -55,7 +55,7 @@ const Footer = () => {
       <div className="row va-ctr">
         <div className="col-sm-4">
           <p>
-            ©2024 Disruptors Media inc. <br /> 650 N Main St, North Salt Lake,
+            ©2025 Disruptors Media inc. <br /> 650 N Main St, North Salt Lake,
             UT 84054
           </p>
         </div>

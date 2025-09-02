@@ -157,4 +157,4 @@ DB_PASSWORD=your_db_password
 - Set up uptime monitoring for both domains
 - Configure error tracking (e.g., Sentry)
 - Set up log aggregation
-- Monitor server resources
+- Monitor server resourcescc
