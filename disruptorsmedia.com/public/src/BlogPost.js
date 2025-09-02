@@ -40,17 +40,24 @@ const BlogPost = () => {
         return;
       }
 
-      // If post has Google Docs ID, fetch full content
+      // If post has Google Docs ID, try to fetch full content
       let fullPost = { ...foundPost };
-      if (foundPost.googleDocsId) {
+      if (foundPost.googleDocsId || foundPost.postUrl || foundPost.content?.includes('docs.google.com')) {
         try {
-          const docContent = await fetchGoogleDocsContent(foundPost.googleDocsId);
-          if (docContent && docContent.content) {
-            fullPost.content = docContent.content;
+          const googleDocsUrl = foundPost.googleDocsId || foundPost.postUrl || foundPost.content;
+          console.log('Attempting to fetch Google Docs content from:', googleDocsUrl);
+          const docContent = await fetchGoogleDocsContent(googleDocsUrl);
+          if (docContent && docContent.html) {
+            fullPost.content = docContent.html;
             if (docContent.title) fullPost.title = docContent.title;
           }
         } catch (err) {
-          console.log('Could not fetch Google Docs content, using fallback');
+          console.error('Could not fetch Google Docs content:', err);
+          // Use fallback content if available
+          const fallbackPost = getFallbackPosts().find(p => p.id === parseInt(id));
+          if (fallbackPost) {
+            fullPost = { ...fullPost, ...fallbackPost };
+          }
         }
       }
 
@@ -98,35 +105,55 @@ const BlogPost = () => {
   const getFallbackPosts = () => [
     {
       id: 1,
-      title: "The Future of AI in Digital Marketing",
+      title: "Why Content Creation Services Are Your Business's Secret Weapon for Growth",
       content: `
-        <h2>Introduction</h2>
-        <p>Artificial Intelligence is revolutionizing the digital marketing landscape at an unprecedented pace. From automated content creation to predictive analytics, AI tools are becoming essential for modern marketing strategies.</p>
+        <h2>The Power of Professional Content Creation</h2>
+        <p>In today's digital landscape, content isn't just king—it's the entire kingdom. Yet, many businesses struggle to maintain a consistent content strategy that drives real results. That's where professional content creation services become your secret weapon for sustainable growth.</p>
         
-        <h2>Key Areas of Impact</h2>
-        <p>AI is transforming several critical areas of digital marketing:</p>
+        <h2>Why Content Creation Matters More Than Ever</h2>
+        <p>The statistics are compelling: businesses that blog receive 55% more website visitors and generate 67% more leads than those that don't. But here's the catch—creating high-quality, consistent content requires expertise, time, and resources that many businesses simply don't have.</p>
+        
+        <h3>The Content Consistency Challenge</h3>
+        <p>Most businesses start strong with content creation but quickly face common obstacles:</p>
         <ul>
-          <li><strong>Content Generation</strong> - Automated blog posts, social media content, and email campaigns</li>
-          <li><strong>Customer Segmentation</strong> - Advanced targeting based on behavior patterns</li>
-          <li><strong>Predictive Analytics</strong> - Forecasting customer lifetime value and churn rates</li>
-          <li><strong>Personalization</strong> - Dynamic website content and product recommendations</li>
+          <li><strong>Time constraints</strong> - Your team is already stretched thin with core business activities</li>
+          <li><strong>Expertise gaps</strong> - Writing compelling content requires specific skills</li>
+          <li><strong>Strategy alignment</strong> - Random content won't move the needle</li>
+          <li><strong>Resource allocation</strong> - Hiring full-time writers is expensive</li>
         </ul>
         
-        <h2>Implementation Strategies</h2>
-        <p>To successfully integrate AI into your marketing workflow, consider these approaches:</p>
-        <ol>
-          <li>Start with simple automation tools for repetitive tasks</li>
-          <li>Invest in data quality and collection systems</li>
-          <li>Train your team on AI tool capabilities and limitations</li>
-          <li>Measure ROI and iterate on your AI implementations</li>
-        </ol>
+        <h2>How Professional Content Services Transform Your Business</h2>
+        <p>When you partner with content creation experts, you're not just outsourcing writing—you're investing in a growth engine that works 24/7 to attract, engage, and convert your ideal customers.</p>
+        
+        <h3>1. Strategic Content Planning</h3>
+        <p>Professional services begin with understanding your business goals, target audience, and competitive landscape. This strategic foundation ensures every piece of content serves a purpose in your growth journey.</p>
+        
+        <h3>2. Consistent Quality & Voice</h3>
+        <p>Maintaining brand consistency across all content touchpoints is crucial. Professional writers develop and maintain your unique brand voice, ensuring every piece reinforces your market position.</p>
+        
+        <h3>3. SEO-Optimized Content That Ranks</h3>
+        <p>Creating content that both humans and search engines love is an art and science. Professional services combine keyword research, user intent analysis, and engaging storytelling to boost your organic visibility.</p>
+        
+        <h3>4. Multi-Channel Content Strategy</h3>
+        <p>From blog posts and social media to email campaigns and video scripts, professional services create cohesive content across all channels, maximizing your reach and impact.</p>
         
         <blockquote>
-          "AI doesn't replace marketers—it amplifies their capabilities and allows them to focus on strategy and creativity."
+          "Companies that prioritize content marketing experience 6x higher conversion rates than those that don't. It's not about creating more content—it's about creating the right content."
         </blockquote>
         
-        <h2>Looking Forward</h2>
-        <p>The future of AI in marketing will be characterized by even more sophisticated personalization, real-time optimization, and seamless integration across all customer touchpoints.</p>
+        <h2>The ROI of Professional Content Creation</h2>
+        <p>Investing in professional content services delivers measurable returns:</p>
+        <ul>
+          <li><strong>Increased organic traffic</strong> - Quality content attracts more qualified visitors</li>
+          <li><strong>Higher engagement rates</strong> - Professional content keeps audiences coming back</li>
+          <li><strong>Improved conversion rates</strong> - Strategic content guides buyers through their journey</li>
+          <li><strong>Enhanced brand authority</strong> - Consistent thought leadership builds trust</li>
+        </ul>
+        
+        <h2>Making the Strategic Decision</h2>
+        <p>The question isn't whether you need content—it's whether you're creating content that actually drives business growth. Professional content creation services transform your marketing from a cost center to a revenue generator.</p>
+        
+        <p>Ready to unlock your business's growth potential? The secret weapon of successful businesses isn't just having content—it's having the right content, created by professionals who understand both your industry and the art of persuasion.</p>
       `,
       excerpt: "Discover how AI is transforming digital marketing strategies and what it means for businesses in 2024.",
       author: "Marketing Team",

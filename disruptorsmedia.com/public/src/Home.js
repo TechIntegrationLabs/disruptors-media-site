@@ -114,7 +114,7 @@ const Home = () => {
       <div className="container">
           <div className="text">
             <img src="./images/gold-logo-banner.png" alt="Phone" />
-            <h3>DIGITAL MARKETING AGENCY</h3>
+            <h3>AI MARKETING AGENCY</h3>
 
             <div className="btns">
               <a href="Services">Services</a>
